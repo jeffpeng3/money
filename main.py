@@ -81,6 +81,7 @@ async def record(ctx: ApplicationContext):
 try:
     bot.loop.run_until_complete(bot.start(getenv("DISCORD_TOKEN", "")))
 except KeyboardInterrupt:
-    bot.loop.run_until_complete(bot.close())
+    pass
 finally:
+    bot.loop.run_until_complete(bot.close())
     bot.loop.close()
