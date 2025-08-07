@@ -1,6 +1,6 @@
 FROM python:3.12-alpine AS base
 FROM base AS builder
-RUN pip install py-cord[speed] python-dotenv pytz tortoise-orm --no-cache-dir
+RUN pip install py-cord[speed] python-dotenv pytz tortoise-orm --no-cache-dir --user
 
 
 FROM base
