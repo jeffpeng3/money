@@ -53,7 +53,7 @@ async def update_balance():
     upToDate = True
 
 @bot.slash_command(name='split', name_localizations={'zh-TW': '平分'})
-async def split(ctx: ApplicationContext, amount: int, description: str = "無描述"):
+async def split(ctx: ApplicationContext, amount: int, description: str):
     global upToDate
     upToDate = False
     amount_div = amount // 3
@@ -65,7 +65,7 @@ async def split(ctx: ApplicationContext, amount: int, description: str = "無描
         await LedgerEntry(user_id=user_id, amount=user_amount, transaction=trans).save()
 
 @bot.slash_command(name='receive', name_localizations={'zh-TW': '收款'})
-async def receive(ctx: ApplicationContext, member: Member, amount: int, description: str = "無描述"):
+async def receive(ctx: ApplicationContext, member: Member, amount: int, description: str):
     global upToDate
     upToDate = False
     trans = Transaction(description=description, recorded_by_id=ctx.author.id)
@@ -75,7 +75,7 @@ async def receive(ctx: ApplicationContext, member: Member, amount: int, descript
     await ctx.respond(f'已向 {member.mention} 收款 {amount} 元，事由：{description}')
 
 @bot.slash_command(name='pay', name_localizations={'zh-TW': '付款'})
-async def pay(ctx: ApplicationContext, member: Member, amount: int, description: str = "無描述"):
+async def pay(ctx: ApplicationContext, member: Member, amount: int, description: str):
     global upToDate
     upToDate = False
     trans = Transaction(description=description, recorded_by_id=ctx.author.id)
@@ -83,6 +83,16 @@ async def pay(ctx: ApplicationContext, member: Member, amount: int, description:
     await LedgerEntry(user_id=member.id, amount=-amount, transaction=trans).save()
     await LedgerEntry(user_id=ctx.author.id, amount=amount, transaction=trans).save()
     await ctx.respond(f'已向 {member.mention} 付款 {amount} 元，事由：{description}')
+
+@bot.slash_command(name='repay', name_localizations={'zh-TW': '還款'})
+async def repay(ctx: ApplicationContext, member: Member, amount: int):
+    global upToDate
+    upToDate = False
+    trans = Transaction(description="還款", recorded_by_id=ctx.author.id)
+    await trans.save()
+    await LedgerEntry(user_id=member.id, amount=amount, transaction=trans).save()
+    await LedgerEntry(user_id=ctx.author.id, amount=-amount, transaction=trans).save()
+    await ctx.respond(f'已向 {member.mention} 還款 {amount} 元')
 
 @bot.slash_command(name='record', name_localizations={'zh-TW': '記錄'})
 async def record(ctx: ApplicationContext):
