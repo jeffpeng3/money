@@ -2,7 +2,8 @@
 FROM python:3.13-alpine
 
 # Keep the base image packages patched
-RUN apk upgrade --no-cache
+RUN apk upgrade --no-cache \
+    && apk add --no-cache su-exec
 
 # Set the working directory in the container
 WORKDIR /app
@@ -17,9 +18,11 @@ RUN python -m pip install --no-cache-dir --upgrade pip \
 # Copy the application code
 COPY main.py orm.py ./
 
-# Run as a non-root user; /app must stay writable for db.sqlite3
-RUN adduser -D -u 1000 app \
+# Entrypoint fixes db ownership on mounted volumes, then drops to the app user.
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
+    && adduser -D -u 1000 app \
     && chown -R app:app /app
-USER app
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["python", "-u", "main.py"]
