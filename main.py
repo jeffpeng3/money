@@ -21,7 +21,11 @@ userList = [551024169442344970, 605999614000365588, 499528798824300544]
 async def on_connect():
     await Tortoise.init(
         db_url='sqlite://db.sqlite3',
-        modules={'models': ['orm']}
+        modules={'models': ['orm']},
+        # Tortoise 1.x stores its context in a ContextVar. on_connect and the
+        # command handlers run in different asyncio tasks, so enable the global
+        # fallback to let the commands see this context.
+        _enable_global_fallback=True,
     )
     await Tortoise.generate_schemas()
     print("Database connected and schemas generated.")
